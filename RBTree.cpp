@@ -26,11 +26,7 @@ struct Carplate {
 	friend std::ostream& operator<<(std::ostream& out, const Carplate* a) {
 		return out << '[' << a->numbers << ',' << a->letters << ']';
 	}
-};
-
-Carplate* getCarplate(const std::string& text) {
-	return new Carplate{ text.substr(1, 3), text.substr(0, 1) + text.substr(4, 2) };
-}    
+};   
 
 /*red-black tree node description*/
 struct Node {
@@ -43,6 +39,29 @@ struct Node {
 
 	ListNode* head{ nullptr };
 };
+
+
+Carplate* getCarplate(const std::string& text) {
+	return new Carplate{ text.substr(1, 3), text.substr(0, 1) + text.substr(4, 2) };
+} 
+
+void printList(ListNode* head) {
+	while (head) {
+		std::cout << head->line_number << ' ';
+		head = head->next;
+	}
+	std::cout << '\n';
+	return;
+}
+
+void
+inorder(Node* root) {
+	if (!root) return;
+
+	inorder(root->left); //+
+	std::cout << root->data << "  \n";
+	inorder(root->right);
+}
 
 int
 main() {
