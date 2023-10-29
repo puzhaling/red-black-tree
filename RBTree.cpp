@@ -1,7 +1,9 @@
+
 #include <fstream>
 #include <algorithm>
 #include <iostream>
 #include <string>
+#include <cctype>
 
 enum Color_t { 
 	RED, 	 /*0*/
@@ -243,6 +245,43 @@ insert(Node* &root, const std::string& text, std::uint32_t line_number) {
 	return;
 }
 
+void
+deleteList(ListNode* head) {
+	ListNode* current{ nullptr };
+	while (head->next) {
+		current = head;
+		head = head->next;
+		delete(current);
+	}
+	delete(head);
+	return;
+}
+
+void
+deleteTreeHelper(Node* root) {
+	if (root == nullptr) return;
+
+	deleteTreeHelper(root->left);
+	deleteTreeHelper(root->right);
+
+	delete(root->data);
+	deleteList(root->head);
+	delete(root);
+
+	return;
+}
+
+void
+deleteTree(Node* &root) {
+	deleteTreeHelper(root);
+	root = nullptr;
+	return;
+}
+
+bool isvalid(const std::string& key) {
+	std::uint16_t length{ static_cast<std::uint16_t>(key.length()) };
+	return (length == 6) ? (isalpha(key[0]) && isdigit(key[1]) && isdigit(key[2]) && isdigit(key[3]) && isalpha(key[4]) && isalpha(key[5])) : false;
+}
 
 int
 main() {
@@ -252,13 +291,14 @@ main() {
 	Node* root{ nullptr };
 	std::uint32_t line_number{ 1 };
 
-	std::string text;
-	while (fs >> text)
-		insert(root, text, line_number++);
+	std::string text{};
+	while (fs >> text) {
+		if (isvalid(text)) 
+			insert(root, text, line_number++);
+	}
 
 	inorder(root);
-
-	draw(root, 0);
+	deleteTree(root);
 
 	fs.close();
 	return 0;
