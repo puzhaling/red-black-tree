@@ -15,8 +15,7 @@ struct ListNode {
 
 	ListNode(std::uint32_t number, ListNode* nextNode = nullptr) : 
 		line_number{ number }, next{ nextNode }
-	{} 
-
+	{}
 };
 
 struct Carplate {
@@ -71,6 +70,8 @@ inorder(Node* root) {
 	inorder(root->left);
 	std::cout << root->data << "  \n";
 	printList(root->head);
+	if (root->color == BLACK) std::cout << "BLACK\n";
+	else std::cout << "RED\n";
 	inorder(root->right);
 
 	return;
@@ -85,6 +86,109 @@ push(ListNode* head, std::uint32_t line_number) {
 }
 
 void
+rightRotate(Node* &root, Node* x) {
+	Node* y{ x->left };
+	x->left = y->right;
+	if (y->right != nullptr) 
+		y->right->parent = x;
+
+	y->parent = x->parent;
+	/*x is a root node*/
+	if (x->parent == nullptr)
+		root = y;
+	/*if x is in the right subtree*/
+	else if (x->parent->right == x) 
+		x->parent->right = y;
+	/*if x is in the left subtree*/
+	else x->parent->left = y;
+
+	y->right = x;
+	x->parent = y;
+	return;
+}
+
+void leftRotate(Node* &root, Node* x) {
+    Node* y{ x->right };
+    x->right = y->left;
+    if (y->left != nullptr) 
+      y->left->parent = x;
+
+    y->parent = x->parent;
+    /*x is a root node*/
+    if (x->parent == nullptr)
+      root = y;
+    /*if x is in the right subtree*/
+    else if (x == x->parent->left)
+      x->parent->left = y;
+    /*is x is in the left subtree*/
+    else x->parent->right = y;
+
+    y->left = x;
+    x->parent = y;
+    return;
+}
+
+void
+insertFix(Node* &root, Node* node) {
+	Node* uncle{ nullptr };
+	while (node->parent->color == RED) {
+		/*
+			a new node in the RIGHT subtree of it's grandfather...
+		*/
+		if (node->parent == node->parent->parent->right) {
+			uncle = node->parent->parent->left;
+			if (uncle->color == RED) {
+				uncle->color = BLACK;
+				node->parent->color = BLACK;
+				node->parent->parent->color = RED;
+				node = node->parent->parent;
+			}
+			else {
+				/*
+					...and forms a triangle pattern. (RL rotation required)
+				*/
+				if (node == node->parent->left) {
+					node = node->parent;
+					rightRotate(root, node);
+				}
+				node->parent->color = BLACK;
+				node->parent->parent->color = RED;
+				leftRotate(root, node->parent->parent);
+			}
+		}
+		/*
+			a new node in the LEFT subtree of it's grandfather...
+		*/
+		else {
+			uncle = node->parent->parent->right;
+			if (uncle->color == RED) {
+				uncle->color = BLACK;
+				node->parent->color = BLACK;
+				node->parent->parent->color = RED;
+				node = node->parent->parent;
+			}
+			else {
+				/*
+					...and forms a triangle pattern. (LR rotation required)
+				*/
+				if (node = node->parent->right) {
+					node = node->parent;
+					leftRotate(root, node);
+				}
+				node->parent->color = BLACK;
+				node->parent->parent->color = RED;
+				rightRotate(root, node->parent->parent);
+			}
+		}
+
+		if (node == root) 
+			break;
+	}
+	root->color = BLACK;
+	return;
+}
+
+void
 insert(Node* &root, const std::string& text, std::uint32_t line_number) {
 
 	Node* newNode{ new Node{} };
@@ -92,40 +196,53 @@ insert(Node* &root, const std::string& text, std::uint32_t line_number) {
 	newNode->head = new ListNode(line_number);
 
 	if (!root) {
+		newNode->color = BLACK;
 		root = newNode;
 		return;
 	}
-
 
 	bool nodeIsPlaced{ false };
 	Node* current{ root };
 
 	while (nodeIsPlaced == false) {
+		/*
+			(comparing pointers, not structs. dereferencing is required)
+		*/
 		if (*current->data == *newNode->data) {
 			delete(newNode);
 			push(current->head, line_number);
-			nodeIsPlaced = true;
+			return;
 		}
 		else if (*newNode->data > *current->data) {
 			if (current->right != nullptr) {
+				Node* parent{ current };
 				current = current->right;
+				current->parent = parent;
 			}
 			else {
 				current->right = newNode;
+				newNode->parent = current;
 				nodeIsPlaced = true;
 			}
 		}
 		else if (*newNode->data < *current->data) {
 			if (current->left != nullptr) {
+				Node* parent{ current };
 				current = current->left;
+				current->parent = parent;
 			}
 			else {
 				current->left = newNode;
+				newNode->parent = current;
 				nodeIsPlaced = true;
 			}
 		}
 	}
+
+	insertFix(root, newNode);
+	return;
 }
+
 
 int
 main() {
@@ -136,11 +253,12 @@ main() {
 	std::uint32_t line_number{ 1 };
 
 	std::string text;
-	while (fs >> text) 
+	while (fs >> text)
 		insert(root, text, line_number++);
 
-
 	inorder(root);
+
+	draw(root, 0);
 
 	fs.close();
 	return 0;
