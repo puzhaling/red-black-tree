@@ -51,12 +51,13 @@ struct Node {
 	ListNode* head{ nullptr };
 };
 
-
-Carplate* getCarplate(const std::string& text) {
+Carplate*
+getCarplate(const std::string& text) {
 	return new Carplate{ text.substr(1, 3), text.substr(0, 1) + text.substr(4, 2) };
 } 
 
-void printList(ListNode* head) {
+void
+printList(ListNode* head) {
 	while (head) {
 		std::cout << head->line_number << ' ';
 		head = head->next;
@@ -109,7 +110,8 @@ rightRotate(Node* &root, Node* x) {
 	return;
 }
 
-void leftRotate(Node* &root, Node* x) {
+void
+leftRotate(Node* &root, Node* x) {
     Node* y{ x->right };
     x->right = y->left;
     if (y->left != nullptr) 
