@@ -6,7 +6,7 @@
 #include <cctype>
 
 enum Color_t { 
-	RED, 	 /*0*/
+	RED, 	   /*0*/
 	BLACK,   /*1*/
 };
 
@@ -51,6 +51,21 @@ struct Node {
 	ListNode* head{ nullptr };
 };
 
+class RBTree {
+public:
+	Node* root;
+
+	RBTree() : 
+		root{} 
+	{}
+
+	void push(ListNode* head, std::uint32_t line_number);
+	void rightRotate(Node* x);
+	void leftRotate(Node* x);
+	void insertFix(Node* node);
+	void insert(const std::string& text, std::uint32_t line_number);
+};
+
 Carplate*
 getCarplate(const std::string& text) {
 	return new Carplate{ text.substr(1, 3), text.substr(0, 1) + text.substr(4, 2) };
@@ -66,30 +81,53 @@ printList(ListNode* head) {
 	return;
 }
 
-void
-inorder(Node* root) {
+void 
+inorderHelper(Node* root) {
 	if (!root) return;
 
-	inorder(root->left);
+	inorderHelper(root->left);
 	std::cout << root->data << "  \n";
 	printList(root->head);
-	if (root->color == BLACK) std::cout << "BLACK\n";
+	if (root->color == BLACK) 
+		std::cout << "BLACK\n";
 	else std::cout << "RED\n";
-	inorder(root->right);
+	inorderHelper(root->right);
 
+	return;
+}
+void
+inorder(RBTree* tree) {
+	if (tree == nullptr) 
+		return;
+	inorderHelper(tree->root);
 	return;
 }
 
 void
-push(ListNode* head, std::uint32_t line_number) {
+RBTree::push(ListNode* head, std::uint32_t line_number) {
 	while (head->next != nullptr)
 		head = head->next;
 	head->next = new ListNode(line_number);
 	return;
 }
 
+/*при удалении проверить наличие значения, если есть:
+	1) если список пустой - удалить узел
+	2) иначе удалить весь узел
+
+
+*/
+/*если при желании удаления в списке находится один элемент - удаляем узел дерева*/
 void
-rightRotate(Node* &root, Node* x) {
+RBTree::deleteNode(ListNode* head, std::uint32_t line_number) {
+	if (head->line_number == line_number && head->next == nullptr) {
+		//deleteNode(root, )
+	}
+	ListNode* current{ head };
+}
+
+void
+RBTree::rightRotate(Node* x) {
 	Node* y{ x->left };
 	x->left = y->right;
 	if (y->right != nullptr) 
@@ -98,7 +136,7 @@ rightRotate(Node* &root, Node* x) {
 	y->parent = x->parent;
 	/*x is a root node*/
 	if (x->parent == nullptr)
-		root = y;
+		this->root = y;
 	/*if x is in the right subtree*/
 	else if (x->parent->right == x) 
 		x->parent->right = y;
@@ -111,7 +149,7 @@ rightRotate(Node* &root, Node* x) {
 }
 
 void
-leftRotate(Node* &root, Node* x) {
+RBTree::leftRotate(Node* x) {
     Node* y{ x->right };
     x->right = y->left;
     if (y->left != nullptr) 
@@ -120,7 +158,7 @@ leftRotate(Node* &root, Node* x) {
     y->parent = x->parent;
     /*x is a root node*/
     if (x->parent == nullptr)
-      root = y;
+      this->root = y;
     /*if x is in the right subtree*/
     else if (x == x->parent->left)
       x->parent->left = y;
@@ -133,7 +171,7 @@ leftRotate(Node* &root, Node* x) {
 }
 
 void
-insertFix(Node* &root, Node* node) {
+RBTree::insertFix(Node* node) {
 	Node* uncle{ nullptr };
 	while (node->parent->color == RED) {
 		/*
@@ -153,11 +191,11 @@ insertFix(Node* &root, Node* node) {
 				*/
 				if (node == node->parent->left) {
 					node = node->parent;
-					rightRotate(root, node);
+					rightRotate(node);
 				}
 				node->parent->color = BLACK;
 				node->parent->parent->color = RED;
-				leftRotate(root, node->parent->parent);
+				leftRotate(node->parent->parent);
 			}
 		}
 		/*
@@ -177,31 +215,31 @@ insertFix(Node* &root, Node* node) {
 				*/
 				if (node = node->parent->right) {
 					node = node->parent;
-					leftRotate(root, node);
+					leftRotate(node);
 				}
 				node->parent->color = BLACK;
 				node->parent->parent->color = RED;
-				rightRotate(root, node->parent->parent);
+				rightRotate(node->parent->parent);
 			}
 		}
 
-		if (node == root) 
+		if (node == this->root) 
 			break;
 	}
-	root->color = BLACK;
+	this->root->color = BLACK;
 	return;
 }
 
 void
-insert(Node* &root, const std::string& text, std::uint32_t line_number) {
+RBTree::insert(const std::string& text, std::uint32_t line_number) {
 
 	Node* newNode{ new Node{} };
 	newNode->data = getCarplate(text);
 	newNode->head = new ListNode(line_number);
 
-	if (!root) {
+	if (root == nullptr) {
 		newNode->color = BLACK;
-		root = newNode;
+		this->root = newNode;
 		return;
 	}
 
@@ -243,19 +281,19 @@ insert(Node* &root, const std::string& text, std::uint32_t line_number) {
 		}
 	}
 
-	insertFix(root, newNode);
+	insertFix(newNode);
 	return;
 }
 
 void
 deleteList(ListNode* head) {
 	ListNode* current{ nullptr };
-	while (head->next) {
+	while (head != nullptr) {
 		current = head;
 		head = head->next;
 		delete(current);
 	}
-	delete(head);
+	head = nullptr;
 	return;
 }
 
@@ -269,18 +307,20 @@ deleteTreeHelper(Node* root) {
 	delete(root->data);
 	deleteList(root->head);
 	delete(root);
+	root = nullptr;
 
 	return;
 }
 
 void
-deleteTree(Node* &root) {
-	deleteTreeHelper(root);
-	root = nullptr;
+deleteTree(RBTree* &tree) {
+	deleteTreeHelper(tree->root);
+	tree = nullptr;
 	return;
 }
 
-bool isvalid(const std::string& key) {
+bool
+isvalid(const std::string& key) {
 	std::uint16_t length{ static_cast<std::uint16_t>(key.length()) };
 	return (length == 6) ? (isalpha(key[0]) && isdigit(key[1]) && isdigit(key[2]) && isdigit(key[3]) && isalpha(key[4]) && isalpha(key[5])) : false;
 }
@@ -290,17 +330,20 @@ main() {
 	std::string file_name{ "input.txt" };
 	std::fstream fs(file_name);
 
-	Node* root{ nullptr };
+	RBTree* tree{ new RBTree() };
 	std::uint32_t line_number{ 1 };
 
 	std::string text{};
 	while (fs >> text) {
-		if (isvalid(text)) 
-			insert(root, text, line_number++);
+	if (isvalid(text)) 
+	 	tree->insert(text, line_number++);
 	}
 
-	inorder(root);
-	deleteTree(root);
+	inorder(tree);
+	deleteTree(tree);
+
+	std::cout << "\nAFTER DELETION:\n";
+	inorder(tree);
 
 	fs.close();
 	return 0;
