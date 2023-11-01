@@ -1,9 +1,5 @@
 
-#include <fstream>
-#include <algorithm>
-#include <iostream>
-#include <string>
-#include <cctype>
+#include <bits/stdc++.h>
 
 enum Color_t { 
 	RED, 	   /*0*/
@@ -55,15 +51,15 @@ class RBTree {
 public:
 	Node* root;
 
-	RBTree() : 
-		root{} 
-	{}
+	RBTree();
 
 	void push(ListNode* head, std::uint32_t line_number);
 	void rightRotate(Node* x);
 	void leftRotate(Node* x);
 	void insertFix(Node* node);
 	void insert(const std::string& text, std::uint32_t line_number);
+	void deleteNode(const std::string& str); /*delete tree node entirely with rebalancing the tree*/
+	void deleteValue(const std::string& str); /*only remove information about in one line encounter*/
 };
 
 Carplate*
@@ -79,6 +75,7 @@ printList(ListNode* head) {
 	}
 	std::cout << '\n';
 	return;
+
 }
 
 void 
@@ -86,22 +83,91 @@ inorderHelper(Node* root) {
 	if (!root) return;
 
 	inorderHelper(root->left);
+
 	std::cout << root->data << "  \n";
 	printList(root->head);
 	if (root->color == BLACK) 
 		std::cout << "BLACK\n";
 	else std::cout << "RED\n";
+
 	inorderHelper(root->right);
 
 	return;
 }
+
 void
 inorder(RBTree* tree) {
 	if (tree == nullptr) 
 		return;
 	inorderHelper(tree->root);
+	std::cout << '\n';
 	return;
 }
+
+bool
+isLeaf(Node* root) {
+	return (root->left == nullptr && root->right == nullptr);
+}
+
+bool
+isLastInList(ListNode* head) {
+	return head->next == nullptr;
+}
+
+void 
+narrowList(ListNode* head) {
+	ListNode* current{ head };
+	while (current->next->next)
+		current = current->next;
+	delete(current->next);
+	current->next = nullptr;
+	return;
+}
+
+void
+deleteList(ListNode* &head) {
+	ListNode* current{ nullptr };
+	while (head != nullptr) {
+		current = head;
+		head = head->next;
+		delete(current);
+	}
+	head = nullptr;
+	return;
+}
+
+void
+deleteTreeHelper(Node* &root) {
+	if (root == nullptr) return;
+
+	deleteTreeHelper(root->left);
+	deleteTreeHelper(root->right);
+
+	delete(root->data);
+	deleteList(root->head);
+	root->head = nullptr;
+	delete(root);
+	root = nullptr;
+
+	return;
+}
+
+void
+deleteTree(RBTree* &tree) {
+	deleteTreeHelper(tree->root);
+	tree = nullptr;
+	return;
+}
+
+bool
+isvalid(const std::string& key) {
+	std::uint16_t length{ static_cast<std::uint16_t>(key.length()) };
+	return (length == 6) ? (isalpha(key[0]) && isdigit(key[1]) && isdigit(key[2]) && isdigit(key[3]) && isalpha(key[4]) && isalpha(key[5])) : false;
+}
+
+RBTree::RBTree() : 
+	root{ nullptr } 
+{}
 
 void
 RBTree::push(ListNode* head, std::uint32_t line_number) {
@@ -111,19 +177,43 @@ RBTree::push(ListNode* head, std::uint32_t line_number) {
 	return;
 }
 
-/*при удалении проверить наличие значения, если есть:
-	1) если список пустой - удалить узел
-	2) иначе удалить весь узел
-
-
-*/
-/*если при желании удаления в списке находится один элемент - удаляем узел дерева*/
 void
-RBTree::deleteNode(ListNode* head, std::uint32_t line_number) {
-	if (head->line_number == line_number && head->next == nullptr) {
-		//deleteNode(root, )
+RBTree::deleteValue(const std::string& str) {
+	if (this->root == nullptr)
+		return;
+
+	Carplate* data{ getCarplate(str) };
+	
+	if (*this->root->data == *data) {
+		if (isLastInList(this->root->head)) {
+			//deleteNode(root);
+		}
+		else {
+			narrowList(this->root->head);
+		}
+		return;
 	}
-	ListNode* current{ head };
+
+	Node* current{ this->root };
+	while (current != nullptr) {
+		if (*current->data == *data) {
+			if (isLastInList(current->head)) {
+				//deleteNode(current);
+				return;
+			} 
+			else {
+				narrowList(current->head);
+			}
+			return;
+		}
+		else if (*current->data < *data) {
+			current = current->right;
+		}
+		else {
+			current = current->left;
+		}
+	}
+	return;
 }
 
 void
@@ -247,9 +337,6 @@ RBTree::insert(const std::string& text, std::uint32_t line_number) {
 	Node* current{ root };
 
 	while (nodeIsPlaced == false) {
-		/*
-			(comparing pointers, not structs. dereferencing is required)
-		*/
 		if (*current->data == *newNode->data) {
 			delete(newNode);
 			push(current->head, line_number);
@@ -283,46 +370,6 @@ RBTree::insert(const std::string& text, std::uint32_t line_number) {
 
 	insertFix(newNode);
 	return;
-}
-
-void
-deleteList(ListNode* head) {
-	ListNode* current{ nullptr };
-	while (head != nullptr) {
-		current = head;
-		head = head->next;
-		delete(current);
-	}
-	head = nullptr;
-	return;
-}
-
-void
-deleteTreeHelper(Node* root) {
-	if (root == nullptr) return;
-
-	deleteTreeHelper(root->left);
-	deleteTreeHelper(root->right);
-
-	delete(root->data);
-	deleteList(root->head);
-	delete(root);
-	root = nullptr;
-
-	return;
-}
-
-void
-deleteTree(RBTree* &tree) {
-	deleteTreeHelper(tree->root);
-	tree = nullptr;
-	return;
-}
-
-bool
-isvalid(const std::string& key) {
-	std::uint16_t length{ static_cast<std::uint16_t>(key.length()) };
-	return (length == 6) ? (isalpha(key[0]) && isdigit(key[1]) && isdigit(key[2]) && isdigit(key[3]) && isalpha(key[4]) && isalpha(key[5])) : false;
 }
 
 int
