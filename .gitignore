@@ -1,0 +1,10 @@
+#vscode
+.vscode
+.idea
+
+#project
+*.out
+*.txt
+1.0_BinaryTree.cpp
+temp.cpp
+working_input.txt
