@@ -8,6 +8,8 @@ Carplate* getCarplate(std::string key);
 
 void printList(ListNode* head);
 void deleteListNode(ListNode* head, short int line_number);
+void inorderTreeHelper(Node* node);
+void inorderTree(RBTree* tree);
 
 bool isvalid(std::string key);
 bool isTNULL(Node* node);

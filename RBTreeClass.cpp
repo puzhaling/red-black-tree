@@ -187,23 +187,6 @@ void RBTree::insertValue(std::string key, short int line_number) {
 	insertValueFix(newNode);
 }
 
-void RBTree::inorderHelper(Node* node) const {
-	if (node == TNULL) 
-		return;
-
-	inorderHelper(node->left);
-	inorderHelper(node->right);
-
-	std::cout << node->carplate << ' ';
-	std::string colour{ (node->colour) ? "RED" : "BLACK" };
-	std::cout << colour << std::endl;
-	printList(node->head);
-}
-
-void RBTree::inorder() const {
-	inorderHelper(this->root);
-}
-
 Node* RBTree::maximum(Node* x) const {
 	if (x == nullptr || x == TNULL) 
 		return x;
@@ -338,12 +321,10 @@ void RBTree::deleteValueHelper(Node* node, std::string key, short int line_numbe
 		then when deleting it is only necessary to remove information 
 		about the appearance of this key in the transmitted line number
 		*/
-		std::cout << "problem in deleteListNode()\n";
 		deleteListNode(z->head, line_number);
 		return;
 	}
 
-	std::cout << "problem in isPresentInList()\n";
 	if (isPresentInList(z->head, line_number) == false) {
 		/*
 		if such a key is found, but there is no such 

@@ -64,39 +64,53 @@ bool isPresentInList(ListNode* head, short int line_number) {
 	return false;
 }
 
-// void deleteFullList(ListNode* head) {
-// 	if (head != nullptr) {
-// 		ListNode* prev{ nullptr };
-// 		std::cout << "deleting list....";
-// 		while (head != nullptr) {
-// 			prev = head;
-// 			head = head->next;
-// 			delete(prev);
-// 		}
-// 		delete(prev);
-// 		std::cout << "deletion was successfully done.\n";
-// 	}
-// }
+void deleteFullList(ListNode* head) {
+	while (head != nullptr) {
+		ListNode* currentNode{ head };
+		head = head->next;
+		delete(currentNode);
+	}
+}
 
-// void deleteTreeHelper(Node* node) {
-// 	if (node == nullptr) {
-// 		return;
-// 	}
+void deleteTreeHelper(Node* node) {
+	if (isTNULL(node) == true) {
+		return;
+	}
 
-// 	deleteTreeHelper(node->left);
-// 	deleteTreeHelper(node->right);
+	deleteTreeHelper(node->left);
+	deleteTreeHelper(node->right);
 
-// 	if (isTNULL(node) == false) {
-// 		deleteFullList(node->head);
-// 		delete(node->carplate);
-// 	}
-// 	delete(node);
-// }
+	delete(node->carplate);
+	deleteFullList(node->head);
+	delete(node);
+}
 
-// void deleteTree(RBTree* &tree) {
-// 	if (tree != nullptr) {
-// 		deleteTreeHelper(tree->root);
-// 		delete(tree);
-// 		tree = nullptr;
-// 	}
-// }
+void deleteTree(RBTree* &tree) {
+	if (tree == nullptr) {
+		return;
+	}
+
+	deleteTreeHelper(tree->root);
+	delete(tree->TNULL);
+	delete(tree);
+	tree = nullptr;
+}
+
+void inorderTreeHelper(Node* node) {
+	if (isTNULL(node) == true) 
+		return;
+
+	inorderTreeHelper(node->left);
+	inorderTreeHelper(node->right);
+
+	std::cout << node->carplate << ' ';
+	std::string colour{ (node->colour) ? "RED" : "BLACK" };
+	std::cout << colour << std::endl;
+	printList(node->head);
+}
+
+void inorderTree(RBTree* tree) {
+	if (tree != nullptr) {
+		inorderTreeHelper(tree->root);	
+	}
+}

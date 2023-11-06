@@ -5,6 +5,8 @@
 #project
 *.out
 *.txt
+temp.cpp
+
 
 #linux
 *~

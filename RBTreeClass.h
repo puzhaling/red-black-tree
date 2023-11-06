@@ -10,10 +10,10 @@ enum Colour_t {
 };
 
 struct ListNode {
-	unsigned int line_number;
+	short int line_number;
 	ListNode* next;
 
-	ListNode(unsigned int number) :
+	ListNode(short int number) :
 		line_number{ number }, next{ nullptr }
 	{}
 };
@@ -57,14 +57,12 @@ public:
 	RBTree();
 	void insertValue(std::string key, short int line_number);
 	void deleteValue(std::string key, short int line_number);
-	void inorder() const;
 
 private:
 	void push(ListNode* head, short int line_number);
 	void insertValueFix(Node* node);
 	void leftRotate(Node* x);
 	void rightRotate(Node* x);
-	void inorderHelper(Node* node) const;
 	void transplant(Node* x, Node* y);
 	void deleteValueHelper(Node* node, std::string key, short int line_number);
 	void deleteValueFix(Node* x);
