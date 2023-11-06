@@ -1,116 +1,82 @@
-
-#include "libraries.h"
 #include "RBTreeClass.h"
 #include "helpFunctions.h"
 
-RBTree::RBTree() :
-	root{ nullptr }
-{}
-
-void
-RBTree::push(ListNode* head, std::uint32_t line_number) {
-	while (head->next != nullptr)
-		head = head->next;
-	head->next = new ListNode(line_number);
-	return;
+RBTree::RBTree() {
+	TNULL = new Node();
+	TNULL->colour = BLACK;
+	TNULL->left = nullptr;
+	TNULL->right = nullptr;
+	TNULL->parent = nullptr;
+	TNULL->head = nullptr;
+	TNULL->carplate = nullptr;
+	root = TNULL;
 }
 
-void
-RBTree::deleteValue(const std::string& str) {
-	if (this->root == nullptr)
-		return;
 
-	Carplate* data{ getCarplate(str) };
-
-	if (*this->root->data == *data) {
-		if (isLastInList(this->root->head)) {
-			//deleteNode(root);
-		}
-		else {
-			narrowList(this->root->head);
-		}
-		return;
-	}
-
-	Node* current{ this->root };
-	while (current != nullptr) {
-		if (*current->data == *data) {
-			if (isLastInList(current->head)) {
-				//deleteNode(current);
-				return;
-			}
-			else {
-				narrowList(current->head);
-			}
-			return;
-		}
-		else if (*current->data < *data) {
-			current = current->right;
-		}
-		else {
-			current = current->left;
-		}
-	}
-	return;
-}
-
-void
-RBTree::rightRotate(Node* x) {
+void RBTree::rightRotate(Node* x) {
 	Node* y{ x->left };
 	x->left = y->right;
-	if (y->right != nullptr)
+
+	if (y->right != TNULL) {
 		y->right->parent = x;
+	}
 
 	y->parent = x->parent;
-	/*x is a root node*/
-	if (x->parent == nullptr)
+	if (x->parent == nullptr) {
+		/*if x is in the right subtree*/
 		this->root = y;
-	/*if x is in the right subtree*/
-	else if (x->parent->right == x)
+	}
+	else if (x == x->parent->right) {
+		/*if x is in the right subtree*/
 		x->parent->right = y;
-	/*if x is in the left subtree*/
-	else x->parent->left = y;
+	}
+	else { 
+		/*if x is in the left subtree*/
+		x->parent->left = y;
+	}
 
 	y->right = x;
 	x->parent = y;
-	return;
 }
 
-void
-RBTree::leftRotate(Node* x) {
-    Node* y{ x->right };
-    x->right = y->left;
-    if (y->left != nullptr)
-      y->left->parent = x;
+void RBTree::leftRotate(Node* x) {
+	Node* y{ x->right };
+	x->right = y->left;
 
-    y->parent = x->parent;
-    /*x is a root node*/
-    if (x->parent == nullptr)
-      this->root = y;
-    /*if x is in the right subtree*/
-    else if (x == x->parent->left)
-      x->parent->left = y;
-    /*is x is in the left subtree*/
-    else x->parent->right = y;
+	if (y->left != TNULL) {
+		y->left->parent = x;
+	}
 
-    y->left = x;
-    x->parent = y;
-    return;
+	y->parent = x->parent;
+	if (x->parent == nullptr) {
+		/*x is a root node*/
+		this->root = y;
+	}
+	else if (x == x->parent->left) {
+		/*if x is in the right subtree*/
+		x->parent->left = y;
+	}
+	else { 
+		/*is x is in the left subtree*/
+		x->parent->right = y;
+	}
+
+	y->left = x;
+	x->parent = y;
 }
 
-void
-RBTree::insertFix(Node* node) {
+void RBTree::insertValueFix(Node* node) {
 	Node* uncle{ nullptr };
-	while (node->parent->color == RED) {
+	while (node->parent->colour == RED) {
 		/*
 			a new node in the RIGHT subtree of it's grandfather...
 		*/
 		if (node->parent == node->parent->parent->right) {
 			uncle = node->parent->parent->left;
-			if (uncle->color == RED) {
-				uncle->color = BLACK;
-				node->parent->color = BLACK;
-				node->parent->parent->color = RED;
+			if (uncle->colour == RED) {
+				uncle->colour = BLACK;
+				node->parent->colour = BLACK;
+				node->parent->parent->colour = RED; 
 				node = node->parent->parent;
 			}
 			else {
@@ -121,8 +87,8 @@ RBTree::insertFix(Node* node) {
 					node = node->parent;
 					rightRotate(node);
 				}
-				node->parent->color = BLACK;
-				node->parent->parent->color = RED;
+				node->parent->colour = BLACK;
+				node->parent->parent->colour = RED;
 				leftRotate(node->parent->parent);
 			}
 		}
@@ -131,10 +97,11 @@ RBTree::insertFix(Node* node) {
 		*/
 		else {
 			uncle = node->parent->parent->right;
-			if (uncle->color == RED) {
-				uncle->color = BLACK;
-				node->parent->color = BLACK;
-				node->parent->parent->color = RED;
+
+			if (uncle->colour == RED) {
+				uncle->colour = BLACK;
+				node->parent->colour = BLACK;
+				node->parent->parent->colour = RED;
 				node = node->parent->parent;
 			}
 			else {
@@ -145,67 +112,284 @@ RBTree::insertFix(Node* node) {
 					node = node->parent;
 					leftRotate(node);
 				}
-				node->parent->color = BLACK;
-				node->parent->parent->color = RED;
+				node->parent->colour = BLACK;
+				node->parent->parent->colour = RED;
 				rightRotate(node->parent->parent);
 			}
 		}
 
-		if (node == this->root)
+		if (node == this->root) 
 			break;
 	}
-	this->root->color = BLACK;
-	return;
+	this->root->colour = BLACK;
 }
 
-void
-RBTree::insert(const std::string& text, std::uint32_t line_number) {
+void RBTree::push(ListNode* head, short int line_number) {
+	while (head->next)
+		head = head->next;
+	head->next = new ListNode(line_number);
+}
 
-	Node* newNode{ new Node{} };
-	newNode->data = getCarplate(text);
-	newNode->head = new ListNode(line_number);
 
-	if (root == nullptr) {
-		newNode->color = BLACK;
-		this->root = newNode;
+void RBTree::insertValue(std::string key, short int line_number) {
+
+    Node* newNode{ new Node() };
+    newNode->carplate = getCarplate(key);
+    newNode->head = new ListNode(line_number);
+    newNode->left = TNULL;
+    newNode->right = TNULL;
+
+    if (this->root == TNULL) {
+    	this->root = newNode;
+    	return;
+    }
+
+    bool nodeIsPlaced{ false };
+    Node* current{ this->root };
+
+    while (nodeIsPlaced != true) {
+    	if (*newNode->carplate == *current->carplate) {
+    		/*
+			There may be cases when the new key is 
+			already contained in the tree. Then the SEPARATE 
+			CHAINING method comes in to handle collisions.
+    		*/
+    		delete(newNode->carplate);
+    		delete(newNode);
+    		push(current->head, line_number);
+    		nodeIsPlaced = true;
+    	}
+    	else if (*newNode->carplate > *current->carplate) {
+    		if (current->right != TNULL) {
+    			current = current->right;
+    		}
+    		else {
+    			current->right = newNode;
+    			nodeIsPlaced = true;
+    		}
+    	}
+    	else {
+    		if (current->left != TNULL) {
+    			current = current->left;
+    		}
+    		else {
+    			current->left = newNode;
+    			nodeIsPlaced = true;
+    		}
+    	}
+    }
+    newNode->parent = current;
+
+    if (newNode->parent->parent == nullptr) {
+    	return;
+    }
+
+	insertValueFix(newNode);
+}
+
+void RBTree::inorderHelper(Node* node) const {
+	if (node == TNULL) 
+		return;
+
+	inorderHelper(node->left);
+	inorderHelper(node->right);
+
+	std::cout << node->carplate << ' ';
+	std::string colour{ (node->colour) ? "RED" : "BLACK" };
+	std::cout << colour << std::endl;
+	printList(node->head);
+}
+
+void RBTree::inorder() const {
+	inorderHelper(this->root);
+}
+
+Node* RBTree::maximum(Node* x) const {
+	if (x == nullptr || x == TNULL) 
+		return x;
+
+	while (x->right != TNULL)
+		x = x->right;
+	return x;
+}
+
+Node* RBTree::minimum(Node* x) const {
+	if (x == nullptr || x == TNULL) 
+		return x;
+
+	while (x->left != TNULL)
+		x = x->left;
+	return x;
+}
+
+void RBTree::transplant(Node* x, Node* y) {
+	if (x->parent == nullptr) {
+    	/*node to delete is a root node*/
+    	this->root = y;
+  	}
+	else if (x == x->parent->left) {
+		/*node to delete is in left subtree of it's parent*/
+		x->parent->left = y;
+	} 
+	else {
+		/*node to delete is in right subtree of it's parent*/
+		x->parent->right = y;
+	}
+	y->parent = x->parent;
+}
+
+void RBTree::deleteValueFix(Node* x) {
+	Node* s{ nullptr };
+
+	while (x != this->root && x->colour == BLACK) {
+		if (x == x->parent->left) {
+			s = x->parent->right;
+
+			if (s->colour == RED) {
+				s->colour = BLACK;
+				x->parent->colour = RED;
+				leftRotate(x->parent);
+				s = x->parent->right;
+			}
+
+			if (s->left->colour == BLACK && s->right->colour == BLACK) {
+				s->colour = RED;
+				x = x->parent;
+			} 
+			else {
+
+				if (s->right->colour == BLACK) {
+					s->left->colour = BLACK;
+					s->colour = RED;
+					rightRotate(s);
+					s = x->parent->right;
+				}
+
+				s->colour = x->parent->colour;
+				x->parent->colour = BLACK;
+				s->right->colour = BLACK;
+				leftRotate(x->parent);
+				x = root;
+			}
+		} 
+		else {
+			s = x->parent->left;
+
+			if (s->colour == RED) {
+				s->colour = BLACK;
+				x->parent->colour = RED;
+				rightRotate(x->parent);
+				s = x->parent->left;
+			}
+
+			if (s->right->colour == BLACK && s->right->colour == BLACK) {
+				s->colour = RED;
+				x = x->parent;
+			} 
+			else {
+
+				if (s->left->colour == BLACK) {
+					s->right->colour = BLACK;
+					s->colour = RED;
+					leftRotate(s);
+					s = x->parent->left;
+				}
+
+				s->colour = x->parent->colour;
+				x->parent->colour = BLACK;
+				s->left->colour = BLACK;
+				rightRotate(x->parent);
+				x = root;
+			}
+		}
+	}
+	x->colour = BLACK;
+}
+
+void RBTree::deleteValueHelper(Node* node, std::string key, short int line_number) {
+	Node* z{ TNULL };
+	Node* x{ nullptr };
+	Node* y{ nullptr };
+
+	struct Carplate* carplate{ getCarplate(key) };
+
+	bool nodeIsFound{ false };
+	while (node != TNULL && nodeIsFound == false) {
+		if (*node->carplate == *carplate) {
+			z = node;
+			nodeIsFound = true;
+		}
+		else if (*node->carplate < *carplate) {
+			node = node->right;
+		} 
+		else {
+			node = node->left;
+		}
+	}
+
+	if (z == TNULL) {
+		//key is not present inside of the tree
 		return;
 	}
 
-	bool nodeIsPlaced{ false };
-	Node* current{ root };
-
-	while (nodeIsPlaced == false) {
-		if (*current->data == *newNode->data) {
-			delete(newNode);
-			push(current->head, line_number);
-			return;
-		}
-		else if (*newNode->data > *current->data) {
-			if (current->right != nullptr) {
-				Node* parent{ current };
-				current = current->right;
-				current->parent = parent;
-			}
-			else {
-				current->right = newNode;
-				newNode->parent = current;
-				nodeIsPlaced = true;
-			}
-		}
-		else if (*newNode->data < *current->data) {
-			if (current->left != nullptr) {
-				Node* parent{ current };
-				current = current->left;
-				current->parent = parent;
-			}
-			else {
-				current->left = newNode;
-				newNode->parent = current;
-				nodeIsPlaced = true;
-			}
-		}
+	if (isLastInList(z->head) == false) {
+		/*
+		if there are several references to the same key in one file, 
+		then when deleting it is only necessary to remove information 
+		about the appearance of this key in the transmitted line number
+		*/
+		std::cout << "problem in deleteListNode()\n";
+		deleteListNode(z->head, line_number);
+		return;
 	}
 
-	insertFix(newNode);
-	return;
+	std::cout << "problem in isPresentInList()\n";
+	if (isPresentInList(z->head, line_number) == false) {
+		/*
+		if such a key is found, but there is no such 
+		key in the selected file line, the deletion will not occur
+		*/
+		return;
+	}
+
+	y = z;
+
+	Colour_t y_original_colour{ y->colour };
+	if (z->left == TNULL) {
+		x = z->right;
+		transplant(z, z->right);
+	} 
+	else if (z->right == TNULL) {
+		x = z->left;
+		transplant(z, z->left);
+	} 
+	else {
+		y = minimum(z->right);
+		y_original_colour = y->colour;
+		x = y->right;
+
+		if (y->parent == z) {
+			x->parent = y;
+		} 
+		else {
+			transplant(y, y->right);
+			y->right = z->right;
+			y->right->parent = y;
+		}
+
+		transplant(z, y);
+		y->left = z->left;
+		y->left->parent = y;
+		y->colour = z->colour;
+	}
+
+	delete z;
+
+	if (y_original_colour == BLACK) {
+		deleteValueFix(x);
+	}
+}
+
+void RBTree::deleteValue(std::string key, short int line_number) {
+	deleteValueHelper(this->root, key, line_number);
 }

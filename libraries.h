@@ -5,5 +5,6 @@
 #include <string>
 #include <cstdint>
 #include <fstream>
+#include <algorithm>
 
-#endif 
+#endif //LIBRARIES

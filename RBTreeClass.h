@@ -2,30 +2,29 @@
 #define RBTREECLASS
 
 #include "libraries.h"
+#include "RBTreeClass.h"
 
-enum Color_t {
-	RED, 	 /*0*/
-	BLACK,   /*1*/
+enum Colour_t {
+	BLACK,
+	RED,
 };
 
-/*list node description*/
 struct ListNode {
-	std::uint32_t line_number{};
-	ListNode* next{ nullptr };
+	unsigned int line_number;
+	ListNode* next;
 
-	ListNode(std::uint32_t number, ListNode* nextNode = nullptr) :
-		line_number{ number }, next{ nextNode }
+	ListNode(unsigned int number) :
+		line_number{ number }, next{ nullptr }
 	{}
 };
 
 struct Carplate {
-	std::string numbers{};
-	std::string letters{};
+	std::string numbers;
+	std::string letters;
 
 	friend std::ostream& operator<<(std::ostream& out, const Carplate* a) {
 		return out << '[' << a->numbers << ',' << a->letters << ']';
 	}
-
 	friend bool operator==(const Carplate& a, const Carplate& b) {
 		return (a.numbers == b.numbers && a.letters == b.letters);
 	}
@@ -37,31 +36,41 @@ struct Carplate {
 	}
 };
 
-/*red-black tree node description*/
 struct Node {
-	Node* parent{ nullptr };
-	Node* left{ nullptr };
-	Node* right{ nullptr };
+	struct Carplate* carplate;
+	struct ListNode* head;
+	Node *parent, *left, *right;
+	Colour_t colour;
 
-	Color_t color{ RED };
-	Carplate* data{};
-
-	ListNode* head{ nullptr };
+	Node() {
+		carplate = nullptr;
+		head = nullptr;
+		parent = left = right = nullptr;
+		colour = RED;
+	}
 };
 
 class RBTree {
 public:
-	Node* root;
+	Node *root, *TNULL;
 
 	RBTree();
+	void insertValue(std::string key, short int line_number);
+	void deleteValue(std::string key, short int line_number);
+	void inorder() const;
 
-	void push(ListNode* head, std::uint32_t line_number);
-	void rightRotate(Node* x);
+private:
+	void push(ListNode* head, short int line_number);
+	void insertValueFix(Node* node);
 	void leftRotate(Node* x);
-	void insertFix(Node* node);
-	void insert(const std::string& text, std::uint32_t line_number);
-	//void deleteNode(const std::string& str); /*delete tree node entirely with rebalancing the tree*/
-	void deleteValue(const std::string& str); /*only remove information about in one line encounter*/
+	void rightRotate(Node* x);
+	void inorderHelper(Node* node) const;
+	void transplant(Node* x, Node* y);
+	void deleteValueHelper(Node* node, std::string key, short int line_number);
+	void deleteValueFix(Node* x);
+
+	Node* minimum(Node* x) const;
+	Node* maximum(Node* x) const;
 };
 
-#endif
+#endif //RBTREECLASS
