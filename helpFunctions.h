@@ -5,7 +5,9 @@
 #include "RBTreeClass.h"
 
 Carplate* getCarplate(std::string key);
+size_t getListLength(ListNode* head);
 
+void writeDownInfo(std::ofstream& out, Node* node);
 void printList(ListNode* head);
 void deleteListNode(ListNode* head, short int line_number);
 void inorderTreeHelper(Node* node);

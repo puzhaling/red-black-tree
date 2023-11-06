@@ -27,6 +27,31 @@ bool isLastInList(ListNode* head) {
 	return (head->next == nullptr);
 }
 
+size_t getListLength(ListNode* head) {
+	size_t res{};
+
+	do {
+		head = head->next;
+		res++;
+	} while (head != nullptr);
+
+	return res;
+}
+
+void writeDownInfo(std::ofstream& out, Node* node) {
+	if (isTNULL(node) == true) {
+		return;
+	}
+
+	writeDownInfo(out, node->left);
+	writeDownInfo(out, node->right);
+
+	size_t listLength{ getListLength(node->head) };
+	while (listLength--)
+		out << node->carplate << ' ';
+	out << std::endl << std::endl;
+}
+
 void deleteListNode(ListNode* head, short int line_number) {
 	if (line_number == head->line_number) {
 		/*

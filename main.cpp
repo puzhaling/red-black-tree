@@ -5,12 +5,12 @@
 int main() {
 	RBTree* tree{ new RBTree() };
 	
-	std::fstream fs("input.txt");
+	std::ifstream in("input.txt");
 
 	short int line_number{ 1 };
 	std::string str{};
 	
-	while (fs >> str) {
+	while (in >> str) {
 		if (isvalid(str)) {
 			tree->insertValue(str, line_number++);
 		}
@@ -26,11 +26,16 @@ int main() {
 	inorderTree(tree);
 	std::cout << std::endl << std::endl;
 
-	deleteTree(tree);
+	std::ofstream out;
+	out.open("output.txt");
 
+	writeDownInfo(out, tree->root);
+
+	deleteTree(tree);
 	inorderTree(tree);
 
-	fs.close();
+	in.close();
+	out.close();
 	return 0;
 }
 
