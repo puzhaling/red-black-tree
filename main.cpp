@@ -2,12 +2,13 @@
 #include "helpFunctions.h"
 #include "RBTreeClass.h"
 
-int main() {
+int 
+main() {
 	RBTree* tree{ new RBTree() };
 	
 	std::ifstream in("input.txt");
 
-	short int line_number{ 1 };
+	size_t line_number{ 1 };
 	std::string str{};
 	
 	while (in >> str) {
@@ -20,7 +21,7 @@ int main() {
 	inorderTree(tree);
 	std::cout << std::endl << std::endl;
 
-	tree->deleteValue("a213aa", 2);
+	tree->deleteValue("a213aa", 11);
 
 	std::cout << "\n#INORDER TRAVERSAL AFTER DELETION:\n\n";
 	inorderTree(tree);

@@ -6,5 +6,7 @@
 #include <cstdint>
 #include <fstream>
 #include <algorithm>
+#include <cassert>
+#include <string_view>
 
 #endif //LIBRARIES

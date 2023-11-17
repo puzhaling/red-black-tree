@@ -10,10 +10,10 @@ enum Colour_t {
 };
 
 struct ListNode {
-	short int line_number;
+	size_t line_number;
 	ListNode* next;
 
-	ListNode(short int number) :
+	ListNode(size_t number) :
 		line_number{ number }, next{ nullptr }
 	{}
 };
@@ -37,9 +37,13 @@ struct Carplate {
 };
 
 struct Node {
-	struct Carplate* carplate;
-	struct ListNode* head;
-	Node *parent, *left, *right;
+	Carplate* carplate;
+	ListNode* head;
+
+	Node* parent;
+	Node* left;
+	Node* right;
+
 	Colour_t colour;
 
 	Node() {
@@ -52,19 +56,21 @@ struct Node {
 
 class RBTree {
 public:
-	Node *root, *TNULL;
+	Node* root;
+	Node* TNULL;
 
 	RBTree();
-	void insertValue(std::string key, short int line_number);
-	void deleteValue(std::string key, short int line_number);
+	void  insertValue(const std::string& key, size_t line_number);
+	void  deleteValue(const std::string& key, size_t line_number);
+	Node* findNode(const std::string& key) const;
 
 private:
-	void push(ListNode* head, short int line_number);
+	void push(ListNode* head, size_t line_number);
 	void insertValueFix(Node* node);
 	void leftRotate(Node* x);
 	void rightRotate(Node* x);
 	void transplant(Node* x, Node* y);
-	void deleteValueHelper(Node* node, std::string key, short int line_number);
+	void deleteValueHelper(Node* node, const std::string& key, size_t line_number);
 	void deleteValueFix(Node* x);
 
 	Node* minimum(Node* x) const;

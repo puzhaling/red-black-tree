@@ -2,18 +2,18 @@
 #include "helpFunctions.h"
 
 RBTree::RBTree() {
-	TNULL = new Node();
-	TNULL->colour = BLACK;
-	TNULL->left = nullptr;
-	TNULL->right = nullptr;
-	TNULL->parent = nullptr;
-	TNULL->head = nullptr;
+	TNULL           = new Node();
+	TNULL->colour   = BLACK;
+	TNULL->left     = nullptr;
+	TNULL->right    = nullptr;
+	TNULL->parent   = nullptr;
+	TNULL->head     = nullptr;
 	TNULL->carplate = nullptr;
-	root = TNULL;
+	root            = TNULL;
 }
 
-
-void RBTree::rightRotate(Node* x) {
+void
+RBTree::rightRotate(Node* x) {
 	Node* y{ x->left };
 	x->left = y->right;
 
@@ -39,7 +39,8 @@ void RBTree::rightRotate(Node* x) {
 	x->parent = y;
 }
 
-void RBTree::leftRotate(Node* x) {
+void 
+RBTree::leftRotate(Node* x) {
 	Node* y{ x->right };
 	x->right = y->left;
 
@@ -65,7 +66,8 @@ void RBTree::leftRotate(Node* x) {
 	x->parent = y;
 }
 
-void RBTree::insertValueFix(Node* node) {
+void 
+RBTree::insertValueFix(Node* node) {
 	Node* uncle{ nullptr };
 	while (node->parent->colour == RED) {
 		/*
@@ -124,20 +126,25 @@ void RBTree::insertValueFix(Node* node) {
 	this->root->colour = BLACK;
 }
 
-void RBTree::push(ListNode* head, short int line_number) {
+void 
+RBTree::push(ListNode* head, size_t line_number) {
 	while (head->next)
 		head = head->next;
-	head->next = new ListNode(line_number);
+
+	head->next = getListNode(line_number);
+	head->next->next = nullptr;
 }
 
-
-void RBTree::insertValue(std::string key, short int line_number) {
+void 
+RBTree::insertValue(const std::string& key, size_t line_number) {
 
     Node* newNode{ new Node() };
-    newNode->carplate = getCarplate(key);
-    newNode->head = new ListNode(line_number);
-    newNode->left = TNULL;
-    newNode->right = TNULL;
+
+    newNode->carplate   = getCarplate(key);
+    newNode->head 	    = getListNode(line_number);
+    newNode->head->next = nullptr;
+    newNode->left       = TNULL;
+    newNode->right      = TNULL;
 
     if (this->root == TNULL) {
     	this->root = newNode;
@@ -147,7 +154,7 @@ void RBTree::insertValue(std::string key, short int line_number) {
     bool nodeIsPlaced{ false };
     Node* current{ this->root };
 
-    while (nodeIsPlaced != true) {
+    while (!nodeIsPlaced) {
     	if (*newNode->carplate == *current->carplate) {
     		/*
 			There may be cases when the new key is 
@@ -155,7 +162,10 @@ void RBTree::insertValue(std::string key, short int line_number) {
 			CHAINING method comes in to handle collisions.
     		*/
     		delete(newNode->carplate);
+    		delete(newNode->head);
     		delete(newNode);
+    		newNode = nullptr;
+
     		push(current->head, line_number);
     		nodeIsPlaced = true;
     	}
@@ -178,34 +188,42 @@ void RBTree::insertValue(std::string key, short int line_number) {
     		}
     	}
     }
-    newNode->parent = current;
 
-    if (newNode->parent->parent == nullptr) {
-    	return;
+    //if new key is unique
+    if (newNode != nullptr) {
+    	newNode->parent = current;
+
+    	//if we have an opportunity to access newNode's uncle, function call takes place
+    	if (newNode->parent->parent != nullptr) {
+    		insertValueFix(newNode);
+    	}
     }
-
-	insertValueFix(newNode);
 }
 
-Node* RBTree::maximum(Node* x) const {
-	if (x == nullptr || x == TNULL) 
+Node* 
+RBTree::maximum(Node* x) const {
+	if (x == TNULL) 
 		return x;
 
-	while (x->right != TNULL)
+	while (x->right != TNULL) {
 		x = x->right;
+	}
 	return x;
 }
 
-Node* RBTree::minimum(Node* x) const {
-	if (x == nullptr || x == TNULL) 
+Node* 
+RBTree::minimum(Node* x) const {
+	if (x == TNULL) 
 		return x;
 
-	while (x->left != TNULL)
+	while (x->left != TNULL) {
 		x = x->left;
+	}
 	return x;
 }
 
-void RBTree::transplant(Node* x, Node* y) {
+void 
+RBTree::transplant(Node* x, Node* y) {
 	if (x->parent == nullptr) {
     	/*node to delete is a root node*/
     	this->root = y;
@@ -221,7 +239,30 @@ void RBTree::transplant(Node* x, Node* y) {
 	y->parent = x->parent;
 }
 
-void RBTree::deleteValueFix(Node* x) {
+Node*
+RBTree::findNode(const std::string& key) const {
+	if (this->root == TNULL) 
+		return TNULL;
+
+	Carplate* carplate{ getCarplate(key) };
+
+	Node* node{ this->root };
+	while (node != TNULL) {
+		if (*node->carplate == *carplate) {
+			return node;
+		}
+		else if (*node->carplate < *carplate) {
+			node = node->right;
+		} 
+		else {
+			node = node->left;
+		}
+	}
+	return node;
+}
+
+void 
+RBTree::deleteValueFix(Node* x) {
 	Node* s{ nullptr };
 
 	while (x != this->root && x->colour == BLACK) {
@@ -289,51 +330,33 @@ void RBTree::deleteValueFix(Node* x) {
 	x->colour = BLACK;
 }
 
-void RBTree::deleteValueHelper(Node* node, std::string key, short int line_number) {
-	Node* z{ TNULL };
-	Node* x{ nullptr };
-	Node* y{ nullptr };
+void 
+RBTree::deleteValueHelper(Node* node, const std::string& key, size_t line_number) {
 
-	struct Carplate* carplate{ getCarplate(key) };
+	Node* foundNode{ findNode(key) };
 
-	bool nodeIsFound{ false };
-	while (node != TNULL && nodeIsFound == false) {
-		if (*node->carplate == *carplate) {
-			z = node;
-			nodeIsFound = true;
-		}
-		else if (*node->carplate < *carplate) {
-			node = node->right;
-		} 
-		else {
-			node = node->left;
-		}
+	if (foundNode == TNULL)
+		return; //key is not present inside of the tree
+
+	/*
+	RETURN VALUES:
+		0: node with provided line_number 
+		 wasn't found => everything left the same
+		1: head was deleted;
+		2: other list node was deleted;
+	*/
+	short resultOfDeletion{ deleteListNode(foundNode->head, line_number) }; 
+	switch (resultOfDeletion) {
+		case 0: 
+		case 2:	
+			return;
+		case 1: 
+			break;
 	}
 
-	if (z == TNULL) {
-		//key is not present inside of the tree
-		return;
-	}
-
-	if (isLastInList(z->head) == false) {
-		/*
-		if there are several references to the same key in one file, 
-		then when deleting it is only necessary to remove information 
-		about the appearance of this key in the transmitted line number
-		*/
-		deleteListNode(z->head, line_number);
-		return;
-	}
-
-	if (isPresentInList(z->head, line_number) == false) {
-		/*
-		if such a key is found, but there is no such 
-		key in the selected file line, the deletion will not occur
-		*/
-		return;
-	}
-
-	y = z;
+	Node* x{  nullptr  };
+	Node* y{ foundNode };
+	Node* z{ foundNode };
 
 	Colour_t y_original_colour{ y->colour };
 	if (z->left == TNULL) {
@@ -363,14 +386,16 @@ void RBTree::deleteValueHelper(Node* node, std::string key, short int line_numbe
 		y->left->parent = y;
 		y->colour = z->colour;
 	}
-
+	delete(z->carplate);
 	delete z;
 
 	if (y_original_colour == BLACK) {
+		//if black height is violated, then the tree need reballancing
 		deleteValueFix(x);
 	}
 }
 
-void RBTree::deleteValue(std::string key, short int line_number) {
+void 
+RBTree::deleteValue(const std::string& key, size_t line_number) {
 	deleteValueHelper(this->root, key, line_number);
 }

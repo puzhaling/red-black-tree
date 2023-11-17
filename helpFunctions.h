@@ -4,21 +4,25 @@
 #include "libraries.h"
 #include "RBTreeClass.h"
 
-Carplate* getCarplate(std::string key);
-size_t getListLength(ListNode* head);
+Carplate* getCarplate(const std::string& key);
+ListNode* getListNode(size_t line_number);
+size_t    getListLength(ListNode* head);
 
+//write the keys to a file
 void writeDownInfo(std::ofstream& out, Node* node);
+
 void printList(ListNode* head);
-void deleteListNode(ListNode* head, short int line_number);
 void inorderTreeHelper(Node* node);
 void inorderTree(RBTree* tree);
 
-bool isvalid(std::string key);
+short deleteListNode(ListNode* head, size_t line_number);
+
+bool isvalid(std::string_view key);
 bool isTNULL(Node* node);
 bool isLastInList(ListNode* head);
-bool isPresentInList(ListNode* head, short int line_number);
+bool isPresentInList(ListNode* head, size_t line_number);
 
-//tree memory dealloaction
+//tree memory deallocation
 void deleteTreeHelper(Node* node);
 void deleteTree(RBTree* &tree);
 void deleteFullList(ListNode* head);
