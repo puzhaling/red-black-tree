@@ -62,16 +62,19 @@ public:
 	RBTree();
 	void  insertValue(const std::string& key, size_t line_number);
 	void  deleteValue(const std::string& key, size_t line_number);
-	Node* findNode(const std::string& key) const;
+	Node* findNode   (const std::string& key) const;
 
 private:
-	void push(ListNode* head, size_t line_number);
-	void insertValueFix(Node* node);
-	void leftRotate(Node* x);
-	void rightRotate(Node* x);
-	void transplant(Node* x, Node* y);
+	void push          	  (ListNode* head, size_t line_number);
+	void insertValueFix	  (Node* node);
+	void leftRotate    	  (Node* x);
+	void rightRotate      (Node* x);
+
+	/*replacing nodes with solving parent connections*/
+	void transplant       (Node* x, Node* y);
+	
 	void deleteValueHelper(Node* node, const std::string& key, size_t line_number);
-	void deleteValueFix(Node* x);
+	void deleteValueFix   (Node* x);
 
 	Node* minimum(Node* x) const;
 	Node* maximum(Node* x) const;

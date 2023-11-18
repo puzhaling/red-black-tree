@@ -17,13 +17,15 @@ main() {
 		}
 	}
 
-	std::cout << "\n#INORDER TRAVERSAL:\n\n";
+	std::cout << "\n#INORDER TRAVERSAL BEFORE DELETION:\n\n";
 	inorderTree(tree);
 	std::cout << std::endl << std::endl;
 
-	tree->deleteValue("a213aa", 11);
-
 	std::cout << "\n#INORDER TRAVERSAL AFTER DELETION:\n\n";
+	tree->deleteValue("a235aa", 4);
+
+	drawTree(tree);
+
 	inorderTree(tree);
 	std::cout << std::endl << std::endl;
 

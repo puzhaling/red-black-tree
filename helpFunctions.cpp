@@ -73,7 +73,7 @@ writeDownInfo(std::ofstream& out, Node* node) {
 		1: head was deleted;
 		2: other list node was deleted;
 */
-short
+std::uint16_t
 deleteListNode(ListNode* head, size_t line_number) {
 	if (line_number == head->line_number) {
 		/*
@@ -145,14 +145,12 @@ deleteTreeHelper(Node* node) {
 
 void
 deleteTree(RBTree* &tree) {
-	if (tree == nullptr) {
-		return;
+	if (tree != nullptr) {
+		deleteTreeHelper(tree->root);
+		delete(tree->TNULL);
+		delete(tree);
+		tree = nullptr;
 	}
-
-	deleteTreeHelper(tree->root);
-	delete(tree->TNULL);
-	delete(tree);
-	tree = nullptr;
 }
 
 void
@@ -163,9 +161,8 @@ inorderTreeHelper(Node* node) {
 	inorderTreeHelper(node->left);
 	inorderTreeHelper(node->right);
 
-
 	std::cout << node->carplate << ' ';
-	std::cout << ((node->colour) ? "RED" : "BLACK") << std::endl;
+	std::cout << ((node->colour) ? "[RED]" : "[BLACK]") << std::endl;
 	printList(node->head);
 }
 
@@ -173,5 +170,30 @@ void
 inorderTree(RBTree* tree) {
 	if (tree != nullptr) {
 		inorderTreeHelper(tree->root);	
+	}
+}
+
+std::uint16_t
+getNumberOfDescendants(Node* node) {
+	return (static_cast<bool>(node->left) + static_cast<bool>(node->right));
+}
+
+void
+drawTreeHelper(Node* root, size_t h) {
+    if (!isTNULL(root)) {
+        drawTreeHelper(root->right, h + 4);
+        for (size_t i{ 1 }; i <= h; ++i) {
+            std::cout << ' ';
+        }
+        std::cout << root->carplate << std::endl;
+        drawTreeHelper(root->left, h + 4);
+    }
+}
+
+void drawTree(RBTree* tree) {
+	if (tree != nullptr) {
+		std::cout << '\n';
+		drawTreeHelper(tree->root, 0);
+		std::cout << std::endl;
 	}
 }

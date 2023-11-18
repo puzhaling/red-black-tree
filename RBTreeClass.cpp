@@ -202,9 +202,6 @@ RBTree::insertValue(const std::string& key, size_t line_number) {
 
 Node* 
 RBTree::maximum(Node* x) const {
-	if (x == TNULL) 
-		return x;
-
 	while (x->right != TNULL) {
 		x = x->right;
 	}
@@ -213,15 +210,13 @@ RBTree::maximum(Node* x) const {
 
 Node* 
 RBTree::minimum(Node* x) const {
-	if (x == TNULL) 
-		return x;
-
 	while (x->left != TNULL) {
 		x = x->left;
 	}
 	return x;
 }
 
+/*replacing nodes with solving parent connections*/
 void 
 RBTree::transplant(Node* x, Node* y) {
 	if (x->parent == nullptr) {
@@ -345,7 +340,7 @@ RBTree::deleteValueHelper(Node* node, const std::string& key, size_t line_number
 		1: head was deleted;
 		2: other list node was deleted;
 	*/
-	short resultOfDeletion{ deleteListNode(foundNode->head, line_number) }; 
+	std::uint16_t resultOfDeletion{ deleteListNode(foundNode->head, line_number) }; 
 	switch (resultOfDeletion) {
 		case 0: 
 		case 2:	
@@ -359,38 +354,45 @@ RBTree::deleteValueHelper(Node* node, const std::string& key, size_t line_number
 	Node* z{ foundNode };
 
 	Colour_t y_original_colour{ y->colour };
+	/*
+	first 2 conditional statements 
+	works simultaneously for 0/1 descendants cases
+	*/
 	if (z->left == TNULL) {
 		x = z->right;
-		transplant(z, z->right);
+		transplant(z, z->right);        
 	} 
-	else if (z->right == TNULL) {
+	else if (z->right == TNULL) {   
 		x = z->left;
 		transplant(z, z->left);
 	} 
 	else {
-		y = minimum(z->right);
+		y = maximum(z->left);
 		y_original_colour = y->colour;
-		x = y->right;
+		x = y->left;
 
 		if (y->parent == z) {
 			x->parent = y;
 		} 
 		else {
-			transplant(y, y->right);
-			y->right = z->right;
-			y->right->parent = y;
+			transplant(y, y->left);
+			y->left = z->left;
+			y->left->parent = y;
 		}
 
 		transplant(z, y);
-		y->left = z->left;
-		y->left->parent = y;
+		y->right = z->right;
+		y->right->parent = y;
 		y->colour = z->colour;
 	}
 	delete(z->carplate);
 	delete z;
 
 	if (y_original_colour == BLACK) {
-		//if black height is violated, then the tree need reballancing
+		/*
+		if black height is violated, then the tree need reballancing
+		(X) is a node, which we use as a replacement node for deleted one
+		*/
 		deleteValueFix(x);
 	}
 }
