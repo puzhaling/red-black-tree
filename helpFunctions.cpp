@@ -14,7 +14,13 @@ getListNode(size_t line_number) {
 
 Carplate* 
 getCarplate(const std::string& key) {
-	return new Carplate{ key.substr(1, 3), key.substr(0, 1) + key.substr(4, 2) };
+	Carplate* carplate{ new Carplate() };
+
+	carplate->leftChar = key[0];
+	carplate->numbers = std::stoi(key.substr(1, 3));
+	carplate->rightString = key.substr(4);
+
+	return carplate;
 }
 
 void
@@ -28,7 +34,7 @@ printList(ListNode* head) {
 
 bool
 isTNULL(Node* node) {
-	return (node->left == nullptr && node->right == nullptr);
+	return (node->colour == BLACK && node->left == nullptr && node->right == nullptr);
 }
 
 bool
@@ -145,11 +151,9 @@ deleteTreeHelper(Node* node) {
 
 void
 deleteTree(RBTree* &tree) {
-	if (tree != nullptr) {
+	if (tree->root != tree->TNULL) {
 		deleteTreeHelper(tree->root);
-		delete(tree->TNULL);
-		delete(tree);
-		tree = nullptr;
+		tree->root = tree->TNULL;
 	}
 }
 
@@ -185,7 +189,8 @@ drawTreeHelper(Node* root, size_t h) {
         for (size_t i{ 1 }; i <= h; ++i) {
             std::cout << ' ';
         }
-        std::cout << root->carplate << std::endl;
+        std::cout << root->carplate << ' ';
+        std::cout << ((root->colour == 1) ? "RED" : "BLACK") << std::endl;
         drawTreeHelper(root->left, h + 4);
     }
 }

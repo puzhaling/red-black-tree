@@ -12,8 +12,8 @@ size_t    getListLength(ListNode* head);
 void writeDownInfo(std::ofstream& out, Node* node);
 
 void printList        (ListNode* head);
-void inorderTreeHelper(Node* node);
 void inorderTree      (RBTree* tree);
+void inorderTreeHelper(Node* node);
 
 bool isvalid        (std::string_view key);
 bool isTNULL        (Node* node);
@@ -29,7 +29,7 @@ std::uint16_t deleteListNode        (ListNode* head, size_t line_number);
 std::uint16_t getNumberOfDescendants(Node* node);
 
 //procedures to draw a tree lied on it's left side
-void drawTreeHelper(Node* root, size_t h);
 void drawTree      (RBTree* tree);
+void drawTreeHelper(Node* root, size_t h);
 
 #endif //HELP_FUNCTIONS

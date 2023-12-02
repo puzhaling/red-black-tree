@@ -4,12 +4,49 @@
 RBTree::RBTree() {
 	TNULL           = new Node();
 	TNULL->colour   = BLACK;
-	TNULL->left     = nullptr;
-	TNULL->right    = nullptr;
-	TNULL->parent   = nullptr;
-	TNULL->head     = nullptr;
-	TNULL->carplate = nullptr;
 	root            = TNULL;
+}
+
+ListNode::ListNode(size_t number) :
+	line_number{ number }, next{ nullptr }
+{}
+
+Node::Node() {
+	carplate = nullptr;
+	parent = left = right = nullptr;
+	colour = RED;
+	head   = nullptr;
+}
+
+std::ostream&
+operator<<(std::ostream& out, const Carplate* a) {
+	return out << '[' << a->leftChar << ',' << a->numbers << ',' << a->rightString << ']';
+}
+
+bool
+operator==(const Carplate& a, const Carplate& b) {
+	return (a.leftChar == b.leftChar && a.numbers == b.numbers && a.rightString == b.rightString);
+}
+
+bool
+operator<(const Carplate& a, const Carplate& b) {
+	if (a.numbers != b.numbers) {
+		return a.numbers < b.numbers;
+	}
+	else if (a.leftChar != b.leftChar) {
+		return a.leftChar < b.leftChar;
+	}
+	else if (a.rightString != b.rightString) {
+		return a.rightString < b.rightString;
+	}
+	else {
+		return a == b;
+	}
+}
+
+bool
+operator>(const Carplate& a, const Carplate& b) {
+	return !(a < b) && !(a == b);
 }
 
 void
@@ -66,64 +103,66 @@ RBTree::leftRotate(Node* x) {
 	x->parent = y;
 }
 
-void 
+void
 RBTree::insertValueFix(Node* node) {
-	Node* uncle{ nullptr };
-	while (node->parent->colour == RED) {
-		/*
-			a new node in the RIGHT subtree of it's grandfather...
-		*/
-		if (node->parent == node->parent->parent->right) {
-			uncle = node->parent->parent->left;
-			if (uncle->colour == RED) {
-				uncle->colour = BLACK;
-				node->parent->colour = BLACK;
-				node->parent->parent->colour = RED; 
-				node = node->parent->parent;
-			}
-			else {
-				/*
-					...and forms a triangle pattern. (RL rotation required)
-				*/
-				if (node == node->parent->left) {
-					node = node->parent;
-					rightRotate(node);
-				}
-				node->parent->colour = BLACK;
-				node->parent->parent->colour = RED;
-				leftRotate(node->parent->parent);
-			}
-		}
-		/*
+    Node* uncle{ nullptr };
+    while (node->parent->colour == RED) {
+    	/*
 			a new node in the LEFT subtree of it's grandfather...
 		*/
-		else {
-			uncle = node->parent->parent->right;
+        if (node->parent == node->parent->parent->left) {
+            uncle = node->parent->parent->right;
 
-			if (uncle->colour == RED) {
-				uncle->colour = BLACK;
-				node->parent->colour = BLACK;
-				node->parent->parent->colour = RED;
-				node = node->parent->parent;
-			}
-			else {
-				/*
+            if (uncle->colour == RED) {
+                node->parent->colour = BLACK;
+                uncle->colour = BLACK;
+                node->parent->parent->colour = RED;
+                node = node->parent->parent;
+            }
+            else {
+            	/*
 					...and forms a triangle pattern. (LR rotation required)
 				*/
-				if (node = node->parent->right) {
-					node = node->parent;
-					leftRotate(node);
-				}
-				node->parent->colour = BLACK;
-				node->parent->parent->colour = RED;
-				rightRotate(node->parent->parent);
-			}
-		}
+                if (node == node->parent->right) {
+                    node = node->parent;
+                    leftRotate(node);
+                }
 
-		if (node == this->root) 
-			break;
-	}
-	this->root->colour = BLACK;
+                node->parent->colour = BLACK;
+                node->parent->parent->colour = RED;
+                rightRotate(node->parent->parent);
+            }
+        }
+        /*
+			a new node in the RIGHT subtree of it's grandfather...
+		*/
+        else {
+            uncle = node->parent->parent->left;
+
+            if (uncle->colour == RED) {
+                node->parent->colour = BLACK;
+                uncle->colour = BLACK;
+                node->parent->parent->colour = RED;
+                node = node->parent->parent;
+            }
+            else {
+            	/*
+					...and forms a triangle pattern. (RL rotation required)
+				*/
+                if (node == node->parent->left) {
+                    node = node->parent;
+                    rightRotate(node);
+                }
+
+                node->parent->colour = BLACK;
+                node->parent->parent->colour = RED;
+                leftRotate(node->parent->parent);
+            }
+        }
+
+        if (node == this->root) break;
+ 	}
+ 	this->root->colour = BLACK;
 }
 
 void 
@@ -143,10 +182,12 @@ RBTree::insertValue(const std::string& key, size_t line_number) {
     newNode->carplate   = getCarplate(key);
     newNode->head 	    = getListNode(line_number);
     newNode->head->next = nullptr;
-    newNode->left       = TNULL;
-    newNode->right      = TNULL;
+    newNode->left       = this->TNULL;
+    newNode->right      = this->TNULL;
+    newNode->colour     = RED;
 
-    if (this->root == TNULL) {
+    if (this->root == this->TNULL) {
+    	newNode->colour = BLACK;
     	this->root = newNode;
     	return;
     }
@@ -189,11 +230,11 @@ RBTree::insertValue(const std::string& key, size_t line_number) {
     	}
     }
 
-    //if new key is unique
+    // if new key is unique
     if (newNode != nullptr) {
     	newNode->parent = current;
 
-    	//if we have an opportunity to access newNode's uncle, function call takes place
+    	// if we have an opportunity to access newNode's uncle, function call takes place
     	if (newNode->parent->parent != nullptr) {
     		insertValueFix(newNode);
     	}
@@ -244,7 +285,7 @@ RBTree::findNode(const std::string& key) const {
 	Node* node{ this->root };
 	while (node != TNULL) {
 		if (*node->carplate == *carplate) {
-			return node;
+			break;
 		}
 		else if (*node->carplate < *carplate) {
 			node = node->right;
@@ -253,6 +294,7 @@ RBTree::findNode(const std::string& key) const {
 			node = node->left;
 		}
 	}
+	delete(carplate);
 	return node;
 }
 
@@ -301,7 +343,7 @@ RBTree::deleteValueFix(Node* x) {
 				s = x->parent->left;
 			}
 
-			if (s->right->colour == BLACK && s->right->colour == BLACK) {
+			if (s->right->colour == BLACK) {
 				s->colour = RED;
 				x = x->parent;
 			} 
@@ -367,26 +409,28 @@ RBTree::deleteValueHelper(Node* node, const std::string& key, size_t line_number
 		transplant(z, z->left);
 	} 
 	else {
-		y = maximum(z->left);
+		y = minimum(z->right);
 		y_original_colour = y->colour;
-		x = y->left;
+		x = y->right;
 
 		if (y->parent == z) {
 			x->parent = y;
 		} 
 		else {
-			transplant(y, y->left);
-			y->left = z->left;
-			y->left->parent = y;
+			transplant(y, y->right);
+			y->right = z->right;
+			y->right->parent = y;
 		}
 
 		transplant(z, y);
-		y->right = z->right;
-		y->right->parent = y;
+		y->left = z->left;
+		y->left->parent = y;
 		y->colour = z->colour;
 	}
+
 	delete(z->carplate);
 	delete z;
+	z = nullptr;
 
 	if (y_original_colour == BLACK) {
 		/*

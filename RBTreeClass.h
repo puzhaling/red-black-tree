@@ -10,54 +10,40 @@ enum Colour_t {
 };
 
 struct ListNode {
-	size_t line_number;
-	ListNode* next;
+	size_t line_number{};
+	ListNode* next{};
 
-	ListNode(size_t number) :
-		line_number{ number }, next{ nullptr }
-	{}
+	ListNode(size_t number);
 };
 
 struct Carplate {
-	std::string numbers;
-	std::string letters;
-
-	friend std::ostream& operator<<(std::ostream& out, const Carplate* a) {
-		return out << '[' << a->numbers << ',' << a->letters << ']';
-	}
-	friend bool operator==(const Carplate& a, const Carplate& b) {
-		return (a.numbers == b.numbers && a.letters == b.letters);
-	}
-	friend bool operator<(const Carplate& a, const Carplate& b) {
-		return (a.numbers == b.numbers) ? a.letters < b.letters : a.numbers < b.numbers;
-	}
-	friend bool operator>(const Carplate& a, const Carplate& b) {
-		return !(a < b);
-	}
+	char  		leftChar{};
+	short 		numbers{};
+	std::string rightString{};
 };
 
+std::ostream& operator<< (std::ostream& out, const Carplate* a);
+bool 		  operator== (const Carplate& a, const Carplate& b);
+bool          operator<  (const Carplate& a, const Carplate& b);
+bool          operator>  (const Carplate& a, const Carplate& b);
+
 struct Node {
-	Carplate* carplate;
-	ListNode* head;
+	Carplate* carplate{};
+	ListNode* head{};
 
-	Node* parent;
-	Node* left;
-	Node* right;
+	Node* parent{};
+	Node* left{};
+	Node* right{};
 
-	Colour_t colour;
+	Colour_t colour{};
 
-	Node() {
-		carplate = nullptr;
-		head = nullptr;
-		parent = left = right = nullptr;
-		colour = RED;
-	}
+	Node();
 };
 
 class RBTree {
 public:
-	Node* root;
-	Node* TNULL;
+	Node* root{};
+	Node* TNULL{};
 
 	RBTree();
 	void  insertValue(const std::string& key, size_t line_number);
